@@ -1,7 +1,8 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Server } from './types';
 import { Request } from 'express';
-import { ApolloError } from 'apollo-server-express';
+// @ts-ignore
+import { ApolloError } from 'apollo-server-errors';
 import { Injectable, UseGuards } from '@nestjs/common';
 import { GraphqlAuthGuard } from 'src/auth/auth.guard';
 import { ServerService } from './server.service';
@@ -12,6 +13,7 @@ import {
 } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 
+// @ts-ignore
 import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { join } from 'path';
 import { createWriteStream, existsSync, mkdir, mkdirSync } from 'fs';
@@ -25,6 +27,7 @@ export class ServerResolver {
 
   @Query(() => [Server])
   async getServers(@Context() ctx: { req: Request }) {
+    // @ts-ignore
     if (!ctx.req?.profile.email)
       return new ApolloError('Profile not found', 'PROFILE_NOT_FOUND');
     return await this.serverService.getServersByProfileEmailOfMember(
@@ -37,6 +40,7 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
     @Args('id', { nullable: true }) id: number,
   ) {
+    // @ts-ignore
     if (!ctx.req?.profile.email)
       return new ApolloError('Profile not found', 'PROFILE_NOT_FOUND');
     return this.serverService.getServer(id, ctx.req?.profile.email);
@@ -106,6 +110,7 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
   ) {
     try {
+      // @ts-ignore
       return this.serverService.createChannel(input, ctx.req?.profile.email);
     } catch (err) {
       throw new ApolloError(err.message, err.code);
@@ -118,6 +123,7 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
   ) {
     try {
+      // @ts-ignore
       await this.serverService.leaveServer(serverId, ctx.req?.profile.email);
       return 'OK';
     } catch (err) {
@@ -131,6 +137,7 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
   ) {
     try {
+      // @ts-ignore
       return this.serverService.deleteServer(serverId, ctx.req?.profile.email);
     } catch (err) {
       throw new ApolloError(err.message, err.code);
@@ -144,8 +151,7 @@ export class ServerResolver {
   ) {
     try {
       return this.serverService.deleteChannelFromServer(
-        channelId,
-        ctx.req?.profile.email,
+        channelId, ctx.req?.profile .email,
       );
     } catch (err) {
       throw new ApolloError(err.message, err.code);
@@ -174,10 +180,11 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
   ) {
     try {
+
       return this.serverService.changeMemberRole(
         memberId,
         role,
-        ctx.req?.profile.email,
+        ctx.req?.profile?.email,
       );
     } catch (err) {
       throw new ApolloError(err.message, err.code);
@@ -190,7 +197,7 @@ export class ServerResolver {
     @Context() ctx: { req: Request },
   ) {
     try {
-      return this.serverService.deleteMember(memberId, ctx.req?.profile.email);
+      return this.serverService.deleteMember(memberId, ctx.req?.profile?.email);
     } catch (err) {
       throw new ApolloError(err.message, err.code);
     }
